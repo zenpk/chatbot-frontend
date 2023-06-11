@@ -6,7 +6,11 @@ export type Message = {
   isUser: boolean;
 };
 
-export const MessageContext = React.createContext<Message[] | null>(null);
+export type MessageActions = { type: string; message: Message };
+
+export const MessageContext = React.createContext<
+  [Message[], React.Dispatch<MessageActions>] | null
+>(null);
 
 export function MessageContextProvider({
   children,
@@ -19,9 +23,34 @@ export function MessageContextProvider({
       isUser: false,
     },
     { msg: "fuck you", isUser: true },
+    {
+      msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
+      isUser: false,
+    },
+    { msg: "fuck you", isUser: true },
+    {
+      msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
+      isUser: false,
+    },
+    { msg: "fuck you", isUser: true },
+    {
+      msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
+      isUser: false,
+    },
+    { msg: "fuck you", isUser: true },
   ];
+
+  function reducer(state: Message[], action: MessageActions) {
+    if (action.type === "add") {
+      return [...state, action.message];
+    }
+    return state;
+  }
+
+  const stateAndReducer = React.useReducer(reducer, defaultValue);
+
   return (
-    <MessageContext.Provider value={defaultValue}>
+    <MessageContext.Provider value={stateAndReducer}>
       {children}
     </MessageContext.Provider>
   );
