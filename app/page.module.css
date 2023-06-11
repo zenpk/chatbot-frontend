@@ -7,6 +7,7 @@
 
 .title {
   display: block;
+  font-size: var(--s-4);
   margin: 0 auto;
   padding: 1rem 0;
   width: fit-content;
@@ -18,6 +19,17 @@
   margin: 0 30rem 2rem 30rem;
   padding: 1rem 2rem;
   border-radius: 1rem;
+  overflow: auto;
+}
+
+.card::-webkit-scrollbar {
+  width: 1rem;
+  background-color: transparent;
+}
+
+.card::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+  background-color: black;
 }
 
 .inputBar {

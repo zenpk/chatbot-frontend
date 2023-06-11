@@ -18,6 +18,7 @@ export function MessageContextProvider({
       msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
       isUser: false,
     },
+    { msg: "fuck you", isUser: true },
   ];
   return (
     <MessageContext.Provider value={defaultValue}>

@@ -4,6 +4,12 @@
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.bubble :global{
+  opacity: 0;
+  animation: fadeInUp 500ms ease-in-out forwards;
 }
 
 .reverse {
@@ -14,4 +20,14 @@
   background-color: var(--black);
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
+  margin: 0;
+  --margin-side: calc(50px + 0.5rem);
+}
+
+.marginRight {
+  margin-right: var(--margin-side);
+}
+
+.marginLeft {
+  margin-left: var(--margin-side);
 }
