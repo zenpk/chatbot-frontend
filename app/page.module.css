@@ -1,0 +1,26 @@
+.background {
+  background-color: var(--black);
+  height: 100vh;
+  color: var(--grey);
+  width: 100vw;
+}
+
+.title {
+  display: block;
+  margin: 0 auto;
+  padding: 1rem 0;
+  width: fit-content;
+}
+
+.card {
+  background-color: #343541;
+  height: 80%;
+  margin: 0 30rem 2rem 30rem;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+}
+
+.inputBar {
+  position: sticky;
+  bottom: 0;
+}

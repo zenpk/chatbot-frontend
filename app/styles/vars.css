@@ -4,7 +4,8 @@ html {
   --width-lg: 960px;
   --width-xl: 1280px;
 
-  --grey: #888888;
+  --black: #202123;
+  --grey: #ECECF1;
   --grey-lighter: #aaaaaa;
   --grey-darker: #555555;
   --grey-secondary: #e2e3e5;

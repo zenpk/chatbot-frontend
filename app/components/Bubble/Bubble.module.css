@@ -1,0 +1,17 @@
+.bubble {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.reverse {
+  flex-flow: row-reverse;
+}
+
+.textBox {
+  background-color: var(--black);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}

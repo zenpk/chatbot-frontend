@@ -3,10 +3,11 @@ import "@/app/styles/vars.css";
 import "@/app/styles/utils.css";
 import "@/app/styles/animations.css";
 import React from "react";
+import { MessageContextProvider } from "@/app/contexts/MessageContext";
 
 export const metadata = {
-  title: "basic",
-  description: "basic next.js scaffold",
+  title: "chatbot-fontend",
+  description: "chatbot-frontend",
 };
 
 export default function RootLayout({
@@ -16,7 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <MessageContextProvider>
+        <body>{children}</body>
+      </MessageContextProvider>
     </html>
   );
 }
