@@ -1,0 +1,62 @@
+.horizontal-center {
+  display: flex;
+  justify-content: center;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}
+
+.vertical-center-inline {
+  display: inline-flex;
+  align-items: center;
+}
+
+.colorGreyLighter {
+  color: var(--grey-lighter);
+}
+
+.fontMono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.fontArt {
+  font-family: "Kalam", sans-serif;
+}
+
+.fwBold {
+  font-weight: bold;
+}
+
+.fs0 {
+  font-size: var(--s-0);
+}
+
+.fs1 {
+  font-size: var(--s-1);
+}
+
+.fs2 {
+  font-size: var(--s-2);
+}
+
+.fs3 {
+  font-size: var(--s-3);
+}
+
+.fs4 {
+  font-size: var(--s-4);
+}
+
+.fs5 {
+  font-size: var(--s-5);
+}
+
+.fs6 {
+  font-size: var(--s-6);
+}
+
+.roundCorner {
+  border-radius: 1rem;
+}
