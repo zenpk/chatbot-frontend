@@ -6,7 +6,7 @@ export type Message = {
   isUser: boolean;
 };
 
-export type MessageActions = { type: string; message: Message };
+export type MessageActions = { type: string; msg: string };
 
 export const MessageContext = React.createContext<
   [Message[], React.Dispatch<MessageActions>] | null
@@ -22,27 +22,22 @@ export function MessageContextProvider({
       msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
       isUser: false,
     },
-    { msg: "fuck you", isUser: true },
-    {
-      msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
-      isUser: false,
-    },
-    { msg: "fuck you", isUser: true },
-    {
-      msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
-      isUser: false,
-    },
-    { msg: "fuck you", isUser: true },
-    {
-      msg: "您好，我是四川方言翻译机器人，请输入四川话文字或语音，我将回答翻译结果",
-      isUser: false,
-    },
-    { msg: "fuck you", isUser: true },
   ];
 
   function reducer(state: Message[], action: MessageActions) {
-    if (action.type === "add") {
-      return [...state, action.message];
+    if (action.type === "addUser") {
+      const message: Message = {
+        msg: action.msg,
+        isUser: true,
+      };
+      return [...state, message];
+    }
+    if (action.type === "addBot") {
+      const message: Message = {
+        msg: action.msg,
+        isUser: false,
+      };
+      return [...state, message];
     }
     return state;
   }
