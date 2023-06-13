@@ -37,12 +37,16 @@ export function InputBar() {
   const [, msgDispatch] = useContext(MessageContext)!;
 
   async function handleSend() {
-    if (text.length <= 0) return;
     msgDispatch({ type: "addUser", msg: text });
+    const txt = text;
+    textDispatch({ type: "edit", text: "" });
+    await sendCore(txt);
+  }
+
+  async function sendCore(txt: string) {
+    if (txt.length <= 0) return;
     try {
-      const sendText = text;
-      textDispatch({ type: "edit", text: "" });
-      const resp = await fetchWrapper.post("/chat", { text: sendText });
+      const resp = await fetchWrapper.post("/chat", { text: txt });
       console.log(resp);
       msgDispatch({ type: "addBot", msg: resp.text });
     } catch (e) {
@@ -56,7 +60,7 @@ export function InputBar() {
       {isMicrophone ? (
         <Input inputRef={inputRef} handleSend={handleSend} />
       ) : (
-        <Record isMicrophone={isMicrophone} dispatch={msgDispatch} />
+        <Record dispatch={msgDispatch} sendCore={sendCore} />
       )}
       {isMicrophone && <Send handleSend={handleSend} />}
     </div>
@@ -138,11 +142,11 @@ function Input({
 }
 
 function Record({
-  isMicrophone,
   dispatch,
+  sendCore,
 }: {
-  isMicrophone: boolean;
   dispatch: React.Dispatch<MessageActions>;
+  sendCore: (txt: string) => void;
 }) {
   const [className, setClassName] = useState(styles.record);
 
@@ -166,8 +170,10 @@ function Record({
     if (result !== "") {
       dispatch({ type: "edit", msg: result });
       closeWebSocket();
+      sendCore(result);
+      setResult("");
     }
-  }, [dispatch, result]);
+  }, [sendCore, dispatch, result]);
 
   function handleDown() {
     setClassName(`${styles.record} ${styles.recordBlack}`);
