@@ -3,6 +3,7 @@ import React, {
   RefObject,
   SetStateAction,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -11,8 +12,21 @@ import { FaMicrophone } from "react-icons/fa";
 import { BsFillChatLeftTextFill, BsSendFill } from "react-icons/bs";
 import { RiVoiceprintFill } from "react-icons/ri";
 import { InputContext } from "@/app/contexts/InputContext";
-import { MessageContext } from "@/app/contexts/MessageContext";
+import { MessageActions, MessageContext } from "@/app/contexts/MessageContext";
 import { fetchWrapper } from "@/app/utils/fetch";
+import {
+  closeWebSocket,
+  connectWebSocket,
+  float32ToInt16,
+  sendThroughWebSocket,
+  uint8ToBase64,
+} from "@/app/components/InputBar/iat";
+import {
+  getRecorder,
+  startRecording,
+  stopRecording,
+} from "@/app/hooks/useRecorder";
+import lamejs from "lamejstmp";
 
 export function InputBar() {
   const [isMicrophone, setIsMicrophone] = useState(true);
@@ -22,7 +36,6 @@ export function InputBar() {
   const [text, textDispatch] = useContext(InputContext)!;
   const [, msgDispatch] = useContext(MessageContext)!;
 
-  // TODO
   async function handleSend() {
     if (text.length <= 0) return;
     msgDispatch({ type: "addUser", msg: text });
@@ -43,9 +56,9 @@ export function InputBar() {
       {isMicrophone ? (
         <Input inputRef={inputRef} handleSend={handleSend} />
       ) : (
-        <Record />
+        <Record isMicrophone={isMicrophone} dispatch={msgDispatch} />
       )}
-      {isMicrophone && <Send inputRef={inputRef} handleSend={handleSend} />}
+      {isMicrophone && <Send handleSend={handleSend} />}
     </div>
   );
 }
@@ -70,13 +83,7 @@ function Button({
   );
 }
 
-function Send({
-  inputRef,
-  handleSend,
-}: {
-  inputRef: RefObject<HTMLInputElement> | null;
-  handleSend: () => void;
-}) {
+function Send({ handleSend }: { handleSend: () => void }) {
   const [className, setClassName] = useState(styles.send);
 
   function handleDown() {
@@ -130,21 +137,101 @@ function Input({
   );
 }
 
-function Record() {
+function Record({
+  isMicrophone,
+  dispatch,
+}: {
+  isMicrophone: boolean;
+  dispatch: React.Dispatch<MessageActions>;
+}) {
   const [className, setClassName] = useState(styles.record);
+
+  const [displayText, setDisplayText] = useState("按住录音");
+  const [result, setResult] = useState("");
+
+  const [buffer, setBuffer] = useState<Float32Array | null>(null);
+
+  const [recordingNode, setRecordingNode] = useState<AudioWorkletNode | null>(
+    null
+  );
+
+  useEffect(() => {
+    getRecorder(setBuffer, setRecordingNode);
+    console.log("recording node ok");
+  }, []);
+
+  // handle result update
+  useEffect(() => {
+    console.log(`Result: ${result}`);
+    if (result !== "") {
+      dispatch({ type: "edit", msg: result });
+      closeWebSocket();
+    }
+  }, [dispatch, result]);
 
   function handleDown() {
     setClassName(`${styles.record} ${styles.recordBlack}`);
+    dispatch({ type: "addUser", msg: "..." });
+    connectWebSocket(setDisplayText, setResult);
+    startRecording(recordingNode);
+    // mediaRecorder!.addEventListener("dataavailable", async (evt) => {
+    //   if (typeof evt.data === "undefined") return;
+    //   if (evt.data.size === 0) return;
+    //   const arrayBuffer = await evt.data.arrayBuffer();
+    //   // const rawBase64 = arrayBufferToBase64(arrayBuffer);
+    //   // console.log(rawBase64);
+    //   // https://stackoverflow.com/questions/37394541/how-to-convert-blob-to-int16array
+    // });
   }
 
-  function handleUp() {
+  async function handleUp() {
     setClassName(`${styles.record}`);
+    stopRecording(recordingNode);
   }
+
+  useEffect(() => {
+    if (buffer) {
+      console.log(`Got Buffer!! ${buffer.length}`);
+      const int16Array = float32ToInt16(buffer);
+      // mp3
+      const mp3Encoder = new lamejs.Mp3Encoder(1, 16000, 320);
+      const mp3Data = mp3Encoder.encodeBuffer(int16Array);
+      const finalMp3Data = mp3Encoder.flush();
+      const mergedMp3Data = new Uint8Array(
+        mp3Data.length + finalMp3Data.length
+      );
+      mergedMp3Data.set(mp3Data, 0);
+      mergedMp3Data.set(finalMp3Data, mp3Data.length);
+      const mp3DataForBlob = [];
+      mp3DataForBlob.push(new Int8Array(mp3Data));
+      mp3DataForBlob.push(new Int8Array(finalMp3Data));
+      // playback
+      // const mp3Blob = new Blob(mp3DataForBlob, { type: "audio/mpeg" });
+      // mp3Blob.arrayBuffer().then((ab) => {
+      //   const bUrl = window.URL.createObjectURL(mp3Blob);
+      //   const temp = document.createElement("audio");
+      //   temp.src = bUrl;
+      //   temp.play();
+      // });
+      const mp3Base64 = uint8ToBase64(mergedMp3Data);
+      sendThroughWebSocket(mp3Base64);
+      // const blob = new Blob([buffer.buffer], { type: "audio/wav" });
+      // blob.arrayBuffer().then((ab) => {
+      //   const uint8Array = new Uint8Array(ab);
+      //   const base64 = uint8ToBase64(uint8Array);
+      //   console.log(base64);
+      // });
+      // const uint8Array = int16toUint8(int16Array);
+      // const base64 = uint8ToBase64(uint8Array);
+      // console.log(base64);
+      // sendThroughWebSocket(base64);
+    }
+  }, [buffer]);
 
   return (
     <button className={className} onMouseDown={handleDown} onMouseUp={handleUp}>
       <RiVoiceprintFill />
-      &nbsp;&nbsp;Hold to Talk
+      &nbsp;&nbsp;{displayText}
     </button>
   );
 }

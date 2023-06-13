@@ -39,6 +39,12 @@ export function MessageContextProvider({
       };
       return [...state, message];
     }
+    if (action.type === "edit") {
+      const last = state[state.length - 1];
+      last.msg = action.msg;
+      state.pop();
+      return [...state, last];
+    }
     return state;
   }
 
